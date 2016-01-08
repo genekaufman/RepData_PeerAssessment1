@@ -11,58 +11,75 @@ if (!file.exists(zip_file_local)) {
 message("Unzipping data file")
 unzip(zip_file_local)
 
-activity_raw<-read.csv(data_file)
+data_raw<-read.csv(data_file)
 unlink(data_file)
 library(dplyr)
-activity_processed<-activity_raw %>%
+
+na_steps_ndx <- is.na(data_raw$steps)
+intervals_list<-unique(data_raw$interval)
+
+data_nona_by_day<-data_raw %>%
   filter(!is.na(steps)) %>%
-  group_by(date)
-activity_processed_daily<-activity_processed  %>%
-  summarize(daily_steps_mean=mean(steps),
-            daily_steps_total=sum(steps))
-#  mutate(DailyStepsMean=mean(steps))
+  group_by(date)  %>%
+  summarize(daily_steps_total=sum(steps))
+
 message("What is mean total number of steps taken per day?")
-daily_mean_steps<-mean(activity_processed_daily$daily_steps_total)
-daily_median_steps<-median(activity_processed_daily$daily_steps_total)
+daily_nona_steps_mean <-mean(data_nona_by_day$daily_steps_total)
+daily_nona_steps_median<-median(data_nona_by_day$daily_steps_total)
 
-mean_steps<-mean(activity_processed$steps)
 
-with(activity_processed_daily,
-     hist(daily_steps_total,breaks = 20))
+with(data_nona_by_day,
+     hist(daily_steps_total,
+          main="Histogram - NA's ignored",
+          xlab="Total Daily Steps",
+          col="blue"))
 
-activity_interval<-activity_raw %>%
+data_nona_by_interval<-data_raw %>%
   filter(!is.na(steps)) %>%
-  group_by(interval)
-activity_interval_summary<-activity_interval  %>%
+  group_by(interval)  %>%
   summarize(interval_steps_mean=mean(steps),
             interval_steps_total=sum(steps))
 
-activity_interval_sorted<-activity_interval_summary  %>%
-  arrange(desc(interval_steps_total),interval )
 
 message("Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?")
-max_interval_steps<-activity_interval_sorted[[1,1]]
+max_interval_steps<-intervals_list[which.max(data_nona_by_interval$interval_steps_total)]
 
-head(activity_interval_sorted)
 message("What is the average daily activity pattern?")
-with(activity_interval_summary,
+with(data_nona_by_interval,
      plot(interval,interval_steps_mean,type="l"))
-
-max(activity_interval_summary$interval_steps_total)
 
 
 ##################
 message("Imputing missing values")
 
 # strategy: replace NA steps with median for that interval
-# 1. get median/interval (activity_interval_summary)
+# 1. get median/interval (data_nona_by_interval)
 
-missing_steps_index <- is.na(activity_raw$steps)
-msi<-missing_steps_index
-intervals<-unique(activity_raw$interval)
-ais<-activity_interval_summary
 
-activity_imputed<-activity_raw
-ai<-activity_imputed
-ai$steps[which(msi)] <- ais$interval_steps_mean[match(ai$interval[which(msi)],intervals)]
-#ai$steps[which(msi)] <- ais[match(ai$interval[which(msi)], interval)]
+data_new<-data_raw
+data_new$steps[which(na_steps_ndx)] <- data_nona_by_interval$interval_steps_mean[match(data_new$interval[which(na_steps_ndx)],intervals_list)]
+#data_new$day_type <- weekdays(as.POSIXlt(data_new$date,format="%Y-%m-%d"))
+data_new$day_type <- as.POSIXlt(data_new$date,format="%Y-%m-%d")$wday
+data_new$day_type[data_new$day_type == 0 || data_new$day_type == 6] <- "weekend"
+data_new$day_type[data_new$day_type > 0 && data_new$day_type < 6] <- "weekday"
+
+data_new_by_day<-data_new %>%
+  group_by(date)  %>%
+  summarize(daily_steps_total=sum(steps))
+
+data_new_by_interval<-data_new %>%
+  group_by(interval,day_type)  %>%
+  summarize(interval_steps_mean=mean(steps),
+            interval_steps_total=sum(steps))
+
+daily_new_steps_mean <-mean(data_new_by_day$daily_steps_total)
+daily_new_steps_median<-median(data_new_by_day$daily_steps_total)
+
+with(data_new_by_day,
+     hist(daily_steps_total,
+          main="Histogram - NA's replaced with Interval mean",
+          xlab="Total Daily Steps",
+          col="red"))
+
+with(data_new_by_interval,
+     plot(interval,interval_steps_mean,type="l"))
