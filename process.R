@@ -60,8 +60,9 @@ data_new<-data_raw
 data_new$steps[which(na_steps_ndx)] <- data_nona_by_interval$interval_steps_mean[match(data_new$interval[which(na_steps_ndx)],intervals_list)]
 #data_new$day_type <- weekdays(as.POSIXlt(data_new$date,format="%Y-%m-%d"))
 data_new$day_type <- as.POSIXlt(data_new$date,format="%Y-%m-%d")$wday
-data_new$day_type[data_new$day_type == 0 || data_new$day_type == 6] <- "weekend"
-data_new$day_type[data_new$day_type > 0 && data_new$day_type < 6] <- "weekday"
+data_new$day_type[data_new$day_type == 0 | data_new$day_type == 6] <- "weekend"
+data_new$day_type[data_new$day_type > 0 & data_new$day_type < 6] <- "weekday"
+data_new$day_type <- as.factor(data_new$day_type)
 
 data_new_by_day<-data_new %>%
   group_by(date)  %>%
@@ -83,3 +84,15 @@ with(data_new_by_day,
 
 with(data_new_by_interval,
      plot(interval,interval_steps_mean,type="l"))
+
+
+library(ggplot2)
+# create ggplot
+thisplot<-ggplot(data_new_by_interval, aes(interval,interval_steps_mean)) +
+  geom_line() +
+  facet_wrap( ~ day_type, ncol=1) +
+  ylab("Average steps") +
+  ggtitle("Average steps/interval - weekday vs weekend") +
+  theme(panel.margin = unit(1, "lines"))
+
+print(thisplot)
