@@ -49,9 +49,11 @@ data_nona_by_day<-data_raw %>%
 ```r
 daily_nona_steps_mean <-mean(data_nona_by_day$daily_steps_total)
 daily_nona_steps_median<-median(data_nona_by_day$daily_steps_total)
+print(daily_nona_steps_mean)
 ```
-The mean total number of steps taken per day is **1.0766189\times 10^{4}**, with a median of **10765** steps.
 
+[1] 10766.19
+The mean total number of steps taken per day is **1.0766189\times 10^{4}**, with a median of **10765** steps.
 
 ```r
 with(data_nona_by_day,
@@ -61,7 +63,7 @@ with(data_nona_by_day,
           col="blue"))
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-1-1.png)\
+![](PA1_template_files/figure-html/data_nona_by_day_hist-1.png) 
           
 ## What is the average daily activity pattern?
 

@@ -50,10 +50,10 @@ data_nona_by_day<-data_raw %>%
 ```{r calculate.mean.median.1}
 daily_nona_steps_mean <-mean(data_nona_by_day$daily_steps_total)
 daily_nona_steps_median<-median(data_nona_by_day$daily_steps_total)
+print(daily_nona_steps_mean)
 ```
 The mean total number of steps taken per day is **`r daily_nona_steps_mean`**, with a median of **`r daily_nona_steps_median`** steps.
-
-```{r }
+```{r data_nona_by_day_hist}
 with(data_nona_by_day,
      hist(daily_steps_total,
           main="Histogram - NA's ignored",
