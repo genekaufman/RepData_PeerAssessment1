@@ -70,7 +70,22 @@ img {
 <h2>Loading and preprocessing the data</h2>
 <p>First, we’re going to set some global options (shamelessly copied from video notes)</p>
 <pre class="r"><code>require(knitr)
-opts_chunk$set(echo=TRUE, results=&quot;asis&quot;, warning=FALSE, message=FALSE)</code></pre>
+opts_chunk$set(echo=TRUE, results=&quot;asis&quot;, warning=FALSE, message=FALSE)
+
+# replace default knitr inline formatter to more nicely display numbers that
+# don't need to use scientific notation
+# inline_hook solution credit: Jason French and Winston Chang
+#  http://www.jason-french.com/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits/
+inline_hook &lt;- function(x){
+  if(is.numeric(x)){
+    res &lt;- ifelse(x == round(x),
+        sprintf(&quot;%d&quot;,x),
+        sprintf(&quot;%.4f&quot;,x)
+    )
+    paste(res,collapse=&quot;, &quot;)
+  }
+}
+knit_hooks$set(inline=inline_hook)</code></pre>
 <p>Download data file, if necessary. Unzip and save to local computer</p>
 <pre class="r"><code>zip_file_url&lt;-&quot;https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip&quot;
 zip_file_local&lt;-&quot;repdata_data_activity.zip&quot;
@@ -101,7 +116,7 @@ intervals_list&lt;-unique(data_raw$interval)   # list of intervals</code></pre>
 <pre class="r"><code>daily_nona_steps_mean &lt;-mean(data_nona_by_day$daily_steps_total)
 daily_nona_steps_median&lt;-median(data_nona_by_day$daily_steps_total)
 print(daily_nona_steps_mean)</code></pre>
-<p>[1] 10766.19 The mean total number of steps taken per day is <strong>1.076618910^{4}</strong>, with a median of <strong>10765</strong> steps.</p>
+<p>[1] 10766.19 The mean total number of steps taken per day is <strong>10766.1887</strong>, with a median of <strong>10765</strong> steps.</p>
 <pre class="r"><code>with(data_nona_by_day,
      hist(daily_steps_total,
           main=&quot;Histogram - NA's ignored&quot;,

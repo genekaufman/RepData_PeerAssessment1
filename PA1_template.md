@@ -6,6 +6,21 @@ First, we're going to set some global options (shamelessly copied from video not
 ```r
 require(knitr)
 opts_chunk$set(echo=TRUE, results="asis", warning=FALSE, message=FALSE)
+
+# replace default knitr inline formatter to more nicely display numbers that
+# don't need to use scientific notation
+# inline_hook solution credit: Jason French and Winston Chang
+#  http://www.jason-french.com/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits/
+inline_hook <- function(x){
+  if(is.numeric(x)){
+    res <- ifelse(x == round(x),
+        sprintf("%d",x),
+        sprintf("%.4f",x)
+    )
+    paste(res,collapse=", ")
+  }
+}
+knit_hooks$set(inline=inline_hook)
 ```
 
 Download data file, if necessary. Unzip and save to local computer
@@ -53,7 +68,7 @@ print(daily_nona_steps_mean)
 ```
 
 [1] 10766.19
-The mean total number of steps taken per day is **1.0766189\times 10^{4}**, with a median of **10765** steps.
+The mean total number of steps taken per day is **10766.1887**, with a median of **10765** steps.
 
 ```r
 with(data_nona_by_day,

@@ -11,6 +11,21 @@ First, we're going to set some global options (shamelessly copied from video not
 ```{r setoptions, message=FALSE}
 require(knitr)
 opts_chunk$set(echo=TRUE, results="asis", warning=FALSE, message=FALSE)
+
+# replace default knitr inline formatter to more nicely display numbers that
+# don't need to use scientific notation
+# inline_hook solution credit: Jason French and Winston Chang
+#  http://www.jason-french.com/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits/
+inline_hook <- function(x){
+  if(is.numeric(x)){
+    res <- ifelse(x == round(x),
+        sprintf("%d",x),
+        sprintf("%.4f",x)
+    )
+    paste(res,collapse=", ")
+  }
+}
+knit_hooks$set(inline=inline_hook)
 ```
 
 Download data file, if necessary. Unzip and save to local computer
