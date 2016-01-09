@@ -105,11 +105,64 @@ with(data_nona_by_interval,
 *Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?*
 
 ```r
-max_interval_steps<-intervals_list[which.max(data_nona_by_interval$interval_steps_total)]
+max_interval_steps <- intervals_list[which.max(data_nona_by_interval$interval_steps_total)]
 ```
 The interval with the highest average across all days is **835**.
 
 ## Imputing missing values
+
+1. *Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)*
+
+```r
+# na_steps_ndx was built earlier, a logical vector indicating which rows had NAs. 
+# Running a sum on that will indicate the number of NAs
+num_nas <- sum(na_steps_ndx)
+```
+
+The number of missing values is **2304**.
+
+2. *Devise a strategy for filling in all of the missing values in the dataset.*
+
+Strategy: replace NA steps with median for that interval
+
+3. *Create a new dataset that is equal to the original dataset but with the missing data filled in*
+
+```r
+#initialize new data frame (data_new) with raw data
+data_new<-data_raw
+
+# replace steps with missing values with the mean for that interval
+data_new$steps[which(na_steps_ndx)] <- data_nona_by_interval$interval_steps_mean[match(data_new$interval[which(na_steps_ndx)],intervals_list)]
+```
+
+We'll need to classify each day as weekend/weekday for later use, but do it now so that it's in place when we do the grouping and summarizing
+
+```r
+# add new variable "day_type", initialized to POSIX wday integer
+data_new$day_type <- as.POSIXlt(data_new$date,format="%Y-%m-%d")$wday
+
+# day_type values in (0,6) indicate weekend, so change the value to "weekend"
+data_new$day_type[data_new$day_type == 0 | data_new$day_type == 6] <- "weekend"
+
+# day_type values in (1:5) indicate weekday, so change the value to "weekday"
+data_new$day_type[data_new$day_type >= 1 & data_new$day_type <= 5] <- "weekday"
+
+# change day_type to Factor
+data_new$day_type <- as.factor(data_new$day_type)
+```
+
+Calculate mean and median total number of steps taken per day.
+
+```r
+data_new_by_day <- data_new %>%
+  group_by(date)  %>%
+  summarize(daily_steps_total=sum(steps))
+
+daily_new_steps_mean <- mean(data_new_by_day$daily_steps_total)
+daily_new_steps_median <- median(data_new_by_day$daily_steps_total)
+```
+
+After replacing NAs with the median step per interval, the mean total number of steps taken per day is **10766.1887**, with a median of **10766.1887** steps. There is no difference in the means between the dataset with ignored NAs and the dataset with imputed NAs. Likewise, the difference in medians is an issue of rounding to the integer (**10765** vs **10766.1887**). Therefore, I believe that we can state that there is no impact when using mean/interval to impute missing data.
 
 
 

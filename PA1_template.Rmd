@@ -106,7 +106,8 @@ The interval with the highest average across all days is **`r max_interval_steps
 
 1. *Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)*
 ```{r report.num.nas}
-# na_steps_ndx was built earlier, a logical vector indicating which rows had NAs. Running a sum on that will indicate the number of NAs
+# na_steps_ndx was built earlier, a logical vector indicating which rows had NAs. 
+# Running a sum on that will indicate the number of NAs
 num_nas <- sum(na_steps_ndx)
 ```
 
@@ -134,7 +135,7 @@ data_new$day_type <- as.POSIXlt(data_new$date,format="%Y-%m-%d")$wday
 data_new$day_type[data_new$day_type == 0 | data_new$day_type == 6] <- "weekend"
 
 # day_type values in (1:5) indicate weekday, so change the value to "weekday"
-data_new$day_type[data_new$day_type > 0 & data_new$day_type < 6] <- "weekday"
+data_new$day_type[data_new$day_type >= 1 & data_new$day_type <= 5] <- "weekday"
 
 # change day_type to Factor
 data_new$day_type <- as.factor(data_new$day_type)
