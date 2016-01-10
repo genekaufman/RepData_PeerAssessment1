@@ -61,6 +61,15 @@ data_nona_by_day <- data_raw %>%
   summarize(daily_steps_total=sum(steps))
 ```
 
+*Make a histogram of the total number of steps taken each day*
+```{r data_nona_by_day_hist}
+with(data_nona_by_day,
+     hist(daily_steps_total,
+          main="Histogram - NA's ignored",
+          xlab="Total Daily Steps",
+          col="blue"))
+```
+
 ## What is mean total number of steps taken per day?
 
 ```{r calculate.mean.median.nona}
@@ -70,14 +79,6 @@ daily_nona_steps_median <- median(data_nona_by_day$daily_steps_total)
 
 Ignoring NAs, the mean total number of steps taken per day is **`r daily_nona_steps_mean`** (rounded to 4 decimal places), with a median of **`r daily_nona_steps_median`** steps.
 
-*Make a histogram of the total number of steps taken each day*
-```{r data_nona_by_day_hist}
-with(data_nona_by_day,
-     hist(daily_steps_total,
-          main="Histogram - NA's ignored",
-          xlab="Total Daily Steps",
-          col="blue"))
-```
           
 ## What is the average daily activity pattern?
 

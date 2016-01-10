@@ -59,16 +59,6 @@ data_nona_by_day <- data_raw %>%
   summarize(daily_steps_total=sum(steps))
 ```
 
-## What is mean total number of steps taken per day?
-
-
-```r
-daily_nona_steps_mean <- mean(data_nona_by_day$daily_steps_total)
-daily_nona_steps_median <- median(data_nona_by_day$daily_steps_total)
-```
-
-Ignoring NAs, the mean total number of steps taken per day is **10766.1887** (rounded to 4 decimal places), with a median of **10765** steps.
-
 *Make a histogram of the total number of steps taken each day*
 
 ```r
@@ -80,6 +70,17 @@ with(data_nona_by_day,
 ```
 
 ![](PA1_template_files/figure-html/data_nona_by_day_hist-1.png) 
+
+## What is mean total number of steps taken per day?
+
+
+```r
+daily_nona_steps_mean <- mean(data_nona_by_day$daily_steps_total)
+daily_nona_steps_median <- median(data_nona_by_day$daily_steps_total)
+```
+
+Ignoring NAs, the mean total number of steps taken per day is **10766.1887** (rounded to 4 decimal places), with a median of **10765** steps.
+
           
 ## What is the average daily activity pattern?
 
