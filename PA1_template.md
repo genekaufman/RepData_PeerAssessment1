@@ -1,7 +1,7 @@
 # Reproducible Research: Peer Assessment 1
 Gene Kaufman, based on template cloned from [http://github.com/rdpeng/RepData_PeerAssessment1](http://github.com/rdpeng/RepData_PeerAssessment1)  
 ## Loading and preprocessing the data
-First, we're going to set some global options (shamelessly copied from video notes)
+First, we're going to set some global options (as shown in video notes)
 
 ```r
 require(knitr)
@@ -97,7 +97,10 @@ data_nona_by_interval <- data_raw %>%
 
 ```r
 with(data_nona_by_interval,
-     plot(interval,interval_steps_mean, type = "l"))
+     plot(interval,interval_steps_mean, 
+     type = "l",
+     xlab="Interval",
+     ylab="Average steps"))
 ```
 
 ![](PA1_template_files/figure-html/data_nona_by_interval_tsplot-1.png) 
@@ -191,14 +194,6 @@ data_new_by_interval <- data_new %>%
   summarize(interval_steps_mean=mean(steps),
             interval_steps_total=sum(steps))
 ```
-
-
-```r
-with(data_new_by_interval,
-     plot(interval,interval_steps_mean,type="l"))
-```
-
-![](PA1_template_files/figure-html/unsure-1.png) 
 
 *Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).*
 

@@ -7,7 +7,7 @@ author: Gene Kaufman, based on template cloned from [http://github.com/rdpeng/Re
 
 ---
 ## Loading and preprocessing the data
-First, we're going to set some global options (shamelessly copied from video notes)
+First, we're going to set some global options (as shown in video notes)
 ```{r setoptions, message=FALSE}
 require(knitr)
 opts_chunk$set(echo=TRUE, results="asis", warning=FALSE, message=FALSE)
@@ -68,7 +68,7 @@ daily_nona_steps_mean <- mean(data_nona_by_day$daily_steps_total)
 daily_nona_steps_median <- median(data_nona_by_day$daily_steps_total)
 ```
 
-Ignoring NAs, the mean total number of steps taken per day is **`r daily_nona_steps_mean`**, with a median of **`r daily_nona_steps_median`** steps.
+Ignoring NAs, the mean total number of steps taken per day is **`r daily_nona_steps_mean`** (rounded to 4 decimal places), with a median of **`r daily_nona_steps_median`** steps.
 
 *Make a histogram of the total number of steps taken each day*
 ```{r data_nona_by_day_hist}
@@ -95,7 +95,9 @@ data_nona_by_interval <- data_raw %>%
 with(data_nona_by_interval,
      plot(interval,interval_steps_mean, 
      type = "l",
-     xlab="Interval"
+     main="Average steps/interval",
+     sub="(ignoring NAs)",
+     xlab="Interval",
      ylab="Average steps"))
 ```
 
@@ -151,7 +153,7 @@ daily_new_steps_mean <- mean(data_new_by_day$daily_steps_total)
 daily_new_steps_median <- median(data_new_by_day$daily_steps_total)
 ```
 
-After replacing NAs with the median step per interval, the mean total number of steps taken per day is **`r daily_new_steps_mean`**, with a median of **`r daily_new_steps_median`** steps. There is no difference in the means between the dataset with ignored NAs and the dataset with imputed NAs. Likewise, the difference in medians is an issue of rounding to the integer (**`r daily_nona_steps_median`** vs **`r daily_new_steps_median`**). Therefore, I believe that we can state that there is no impact when using mean/interval to impute missing data.
+After replacing NAs with the median step per interval, the mean total number of steps taken per day is **`r daily_new_steps_mean`** (rounded to 4 decimal places), with a median of **`r daily_new_steps_median`** steps (rounded to 4 decimal places). There is no difference in the means between the dataset with ignored NAs and the dataset with imputed NAs. Likewise, the difference in medians is very small (**`r daily_new_steps_median`** vs **`r daily_nona_steps_median`** (rounded to 4 decimal places)). Therefore, I believe that we can state that there is no impact when using mean/interval to impute missing data.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
