@@ -135,7 +135,39 @@ data_new<-data_raw
 data_new$steps[which(na_steps_ndx)] <- data_nona_by_interval$interval_steps_mean[match(data_new$interval[which(na_steps_ndx)],intervals_list)]
 ```
 
-We'll need to classify each day as weekend/weekday for later use, but do it now so that it's in place when we do the grouping and summarizing
+Group and summarize new data by date
+
+```r
+data_new_by_day <- data_new %>%
+  group_by(date)  %>%
+  summarize(daily_steps_total=sum(steps))
+```
+
+*Make a histogram of the total number of steps taken each day*
+
+```r
+with(data_new_by_day,
+     hist(daily_steps_total,
+          main="Histogram - NA's replaced with Interval mean",
+          xlab="Total Daily Steps",
+          col="red"))
+```
+
+![](PA1_template_files/figure-html/data_new_by_day_hist-1.png) 
+
+*Calculate mean and median total number of steps taken per day.*
+
+```r
+daily_new_steps_mean <- mean(data_new_by_day$daily_steps_total)
+daily_new_steps_median <- median(data_new_by_day$daily_steps_total)
+```
+
+After replacing NAs with the median step per interval, the mean total number of steps taken per day is **10766.1887**, with a median of **10766.1887** steps. There is no difference in the means between the dataset with ignored NAs and the dataset with imputed NAs. Likewise, the difference in medians is an issue of rounding to the integer (**10765** vs **10766.1887**). Therefore, I believe that we can state that there is no impact when using mean/interval to impute missing data.
+
+
+## Are there differences in activity patterns between weekdays and weekends?
+
+*Create a new factor variable in the dataset with two levels â<U+0080><U+0093> â<U+0080><U+009C>weekdayâ<U+0080> and â<U+0080><U+009C>weekendâ<U+0080> indicating whether a given date is a weekday or weekend day.*
 
 ```r
 # add new variable "day_type", initialized to POSIX wday integer
@@ -151,19 +183,37 @@ data_new$day_type[data_new$day_type >= 1 & data_new$day_type <= 5] <- "weekday"
 data_new$day_type <- as.factor(data_new$day_type)
 ```
 
-Calculate mean and median total number of steps taken per day.
+Group and summarize new data by interval
 
 ```r
-data_new_by_day <- data_new %>%
-  group_by(date)  %>%
-  summarize(daily_steps_total=sum(steps))
-
-daily_new_steps_mean <- mean(data_new_by_day$daily_steps_total)
-daily_new_steps_median <- median(data_new_by_day$daily_steps_total)
+data_new_by_interval <- data_new %>%
+  group_by(interval,day_type)  %>%
+  summarize(interval_steps_mean=mean(steps),
+            interval_steps_total=sum(steps))
 ```
 
-After replacing NAs with the median step per interval, the mean total number of steps taken per day is **10766.1887**, with a median of **10766.1887** steps. There is no difference in the means between the dataset with ignored NAs and the dataset with imputed NAs. Likewise, the difference in medians is an issue of rounding to the integer (**10765** vs **10766.1887**). Therefore, I believe that we can state that there is no impact when using mean/interval to impute missing data.
 
+```r
+with(data_new_by_interval,
+     plot(interval,interval_steps_mean,type="l"))
+```
 
+![](PA1_template_files/figure-html/unsure-1.png) 
 
-## Are there differences in activity patterns between weekdays and weekends?
+*Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).*
+
+```r
+library(ggplot2)
+# create ggplot
+thisplot <- ggplot(data_new_by_interval, aes(interval,interval_steps_mean)) +
+  geom_line() +
+  facet_wrap( ~ day_type, ncol=1) +
+  ylab("Average steps") +
+  ggtitle("Average steps/interval - weekday vs weekend") +
+  theme(panel.margin = unit(1, "lines"))
+
+print(thisplot)
+```
+
+![](PA1_template_files/figure-html/data_new_by_interval_tsplot-1.png) 
+

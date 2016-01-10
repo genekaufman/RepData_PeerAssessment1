@@ -93,7 +93,10 @@ data_nona_by_interval <- data_raw %>%
 *Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)*
 ```{r data_nona_by_interval_tsplot}
 with(data_nona_by_interval,
-     plot(interval,interval_steps_mean, type = "l"))
+     plot(interval,interval_steps_mean, 
+     type = "l",
+     xlab="Interval"
+     ylab="Average steps"))
 ```
 
 *Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?*
@@ -126,7 +129,34 @@ data_new<-data_raw
 data_new$steps[which(na_steps_ndx)] <- data_nona_by_interval$interval_steps_mean[match(data_new$interval[which(na_steps_ndx)],intervals_list)]
 ```
 
-We'll need to classify each day as weekend/weekday for later use, but do it now so that it's in place when we do the grouping and summarizing
+Group and summarize new data by date
+```{r create.new.day}
+data_new_by_day <- data_new %>%
+  group_by(date)  %>%
+  summarize(daily_steps_total=sum(steps))
+```
+
+*Make a histogram of the total number of steps taken each day*
+```{r data_new_by_day_hist}
+with(data_new_by_day,
+     hist(daily_steps_total,
+          main="Histogram - NA's replaced with Interval mean",
+          xlab="Total Daily Steps",
+          col="red"))
+```
+
+*Calculate mean and median total number of steps taken per day.*
+```{r calculate.mean.median.new}
+daily_new_steps_mean <- mean(data_new_by_day$daily_steps_total)
+daily_new_steps_median <- median(data_new_by_day$daily_steps_total)
+```
+
+After replacing NAs with the median step per interval, the mean total number of steps taken per day is **`r daily_new_steps_mean`**, with a median of **`r daily_new_steps_median`** steps. There is no difference in the means between the dataset with ignored NAs and the dataset with imputed NAs. Likewise, the difference in medians is an issue of rounding to the integer (**`r daily_nona_steps_median`** vs **`r daily_new_steps_median`**). Therefore, I believe that we can state that there is no impact when using mean/interval to impute missing data.
+
+
+## Are there differences in activity patterns between weekdays and weekends?
+
+*Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.*
 ```{r determine.day.type}
 # add new variable "day_type", initialized to POSIX wday integer
 data_new$day_type <- as.POSIXlt(data_new$date,format="%Y-%m-%d")$wday
@@ -141,18 +171,25 @@ data_new$day_type[data_new$day_type >= 1 & data_new$day_type <= 5] <- "weekday"
 data_new$day_type <- as.factor(data_new$day_type)
 ```
 
-Calculate mean and median total number of steps taken per day.
-```{r create.new.day}
-data_new_by_day <- data_new %>%
-  group_by(date)  %>%
-  summarize(daily_steps_total=sum(steps))
-
-daily_new_steps_mean <- mean(data_new_by_day$daily_steps_total)
-daily_new_steps_median <- median(data_new_by_day$daily_steps_total)
+Group and summarize new data by interval
+```{r create.new.interval}
+data_new_by_interval <- data_new %>%
+  group_by(interval,day_type)  %>%
+  summarize(interval_steps_mean=mean(steps),
+            interval_steps_total=sum(steps))
 ```
 
-After replacing NAs with the median step per interval, the mean total number of steps taken per day is **`r daily_new_steps_mean`**, with a median of **`r daily_new_steps_median`** steps. There is no difference in the means between the dataset with ignored NAs and the dataset with imputed NAs. Likewise, the difference in medians is an issue of rounding to the integer (**`r daily_nona_steps_median`** vs **`r daily_new_steps_median`**). Therefore, I believe that we can state that there is no impact when using mean/interval to impute missing data.
+*Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).*
+```{r data_new_by_interval_tsplot}
+library(ggplot2)
+# create ggplot
+thisplot <- ggplot(data_new_by_interval, aes(interval,interval_steps_mean)) +
+  geom_line() +
+  facet_wrap( ~ day_type, ncol=1) +
+  ylab("Average steps") +
+  ggtitle("Average steps/interval - weekday vs weekend") +
+  theme(panel.margin = unit(1, "lines"))
 
+print(thisplot)
+```
 
-
-## Are there differences in activity patterns between weekdays and weekends?
