@@ -57,7 +57,26 @@ message("Imputing missing values")
 
 
 data_new<-data_raw
+data_new2<-data_raw
 data_new$steps[which(na_steps_ndx)] <- data_nona_by_interval$interval_steps_mean[match(data_new$interval[which(na_steps_ndx)],intervals_list)]
+get_interval_mean<-function(interval_in){
+  data_nona_by_interval$interval_steps_mean[data_nona_by_interval$interval == interval_in]
+}
+#for (i in 1:nrow(data_new2)) {
+   data_new2[na_steps_ndx,]$steps <- ifelse(is.na(data_new2[na_steps_ndx,]$steps),
+                                          get_interval_mean(data_new2[na_steps_ndx,]$interval),
+                                 data_new2[na_steps_ndx,]$steps)
+#   if (is.na(data_new2[i,]$steps)) {
+#     data_new2[i,]$steps <- get_interval_mean(data_new2[i,]$interval)
+#   }
+
+
+#}
+
+data_new2$steps <- ifelse(is.na(data_new2$steps),get_interval_mean(data_new2$interval),data_new2$steps)
+data_new_hold <- data_new
+
+
 #data_new$day_type <- weekdays(as.POSIXlt(data_new$date,format="%Y-%m-%d"))
 data_new$day_type <- as.POSIXlt(data_new$date,format="%Y-%m-%d")$wday
 data_new$day_type[data_new$day_type == 0 | data_new$day_type == 6] <- "weekend"

@@ -43,13 +43,10 @@ if (!file.exists(zip_file_local)) {
 unzip(zip_file_local)
 ```
 
-Read data, create some lists that will be useful later
+Read data
 ```{r load.data}
 data_raw <- read.csv(data_file)
 unlink(data_file)	# we don't need to keep the unzipped file around any longer
-
-na_steps_ndx <- is.na(data_raw$steps)		# index of NAs
-intervals_list <- unique(data_raw$interval)	# list of intervals
 ```
 
 
@@ -103,15 +100,22 @@ with(data_nona_by_interval,
 
 *Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?*
 ```{r interval.max.steps}
+intervals_list <- unique(data_raw$interval)	# list of intervals
+
 max_interval_steps <- intervals_list[which.max(data_nona_by_interval$interval_steps_total)]
 ```
 The interval with the highest average across all days is **`r max_interval_steps`**.
 
 ## Imputing missing values
 
+Make a couple of lists that will come in handy
+```{r make.lists}
+na_steps_ndx <- is.na(data_raw$steps)		# index of NAs
+```
+
 1. *Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)*
 ```{r report.num.nas}
-# na_steps_ndx was built earlier, a logical vector indicating which rows had NAs. 
+# na_steps_ndx is a logical vector indicating which rows had NAs. 
 # Running a sum on that will indicate the number of NAs
 num_nas <- sum(na_steps_ndx)
 ```
@@ -127,8 +131,11 @@ Strategy: replace NA steps with median for that interval
 #initialize new data frame (data_new) with raw data
 data_new<-data_raw
 
-# replace steps with missing values with the mean for that interval
-data_new$steps[which(na_steps_ndx)] <- data_nona_by_interval$interval_steps_mean[match(data_new$interval[which(na_steps_ndx)],intervals_list)]
+# replace steps with missing values with the mean for that interval. Matching 
+# the interval for a missing step to the intervals_list provides the correct 
+# index to the summary dataframe (data_nona_by_interval), and from there we 
+# return the mean for that interval
+data_new[which(na_steps_ndx),]$steps <- data_nona_by_interval[match(data_new[which(na_steps_ndx),]$interval,intervals_list),]$interval_steps_mean
 ```
 
 Group and summarize new data by date
