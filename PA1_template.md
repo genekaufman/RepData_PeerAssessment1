@@ -53,7 +53,7 @@ intervals_list <- unique(data_raw$interval)	# list of intervals
 Create a data frame without NA's (nona), grouped by day
 
 ```r
-data_nona_by_day<-data_raw %>%
+data_nona_by_day <- data_raw %>%
   filter(!is.na(steps)) %>%
   group_by(date)  %>%
   summarize(daily_steps_total=sum(steps))
@@ -67,7 +67,7 @@ daily_nona_steps_mean <- mean(data_nona_by_day$daily_steps_total)
 daily_nona_steps_median <- median(data_nona_by_day$daily_steps_total)
 ```
 
-Ignoring NAs, the mean total number of steps taken per day is **10766.1887**, with a median of **10765** steps.
+Ignoring NAs, the mean total number of steps taken per day is **10766.1887** (rounded to 4 decimal places), with a median of **10765** steps.
 
 *Make a histogram of the total number of steps taken each day*
 
@@ -99,6 +99,7 @@ data_nona_by_interval <- data_raw %>%
 with(data_nona_by_interval,
      plot(interval,interval_steps_mean, 
      type = "l",
+     main="Average steps/interval",
      xlab="Interval",
      ylab="Average steps"))
 ```
@@ -165,12 +166,12 @@ daily_new_steps_mean <- mean(data_new_by_day$daily_steps_total)
 daily_new_steps_median <- median(data_new_by_day$daily_steps_total)
 ```
 
-After replacing NAs with the median step per interval, the mean total number of steps taken per day is **10766.1887**, with a median of **10766.1887** steps. There is no difference in the means between the dataset with ignored NAs and the dataset with imputed NAs. Likewise, the difference in medians is an issue of rounding to the integer (**10765** vs **10766.1887**). Therefore, I believe that we can state that there is no impact when using mean/interval to impute missing data.
+After replacing NAs with the median step per interval, the mean total number of steps taken per day is **10766.1887** (rounded to 4 decimal places), with a median of **10766.1887** steps (rounded to 4 decimal places). There is no difference in the means between the dataset with ignored NAs and the dataset with imputed NAs. Likewise, the difference in medians is very small (**10766.1887** vs **10765** (rounded to 4 decimal places)). Therefore, I believe that we can state that there is no impact when using mean/interval to impute missing data.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-*Create a new factor variable in the dataset with two levels â<U+0080><U+0093> â<U+0080><U+009C>weekdayâ<U+0080> and â<U+0080><U+009C>weekendâ<U+0080> indicating whether a given date is a weekday or weekend day.*
+*Create a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.*
 
 ```r
 # add new variable "day_type", initialized to POSIX wday integer
