@@ -26,11 +26,15 @@ intervals_list<-unique(data_raw$interval)
 
 
 data_new<-data_raw
+data_new2<-data_raw
 # data_new$steps[which(na_steps_ndx)] <-
 #   data_nona_by_interval$interval_steps_mean[match(data_new$interval[which(na_steps_ndx)],intervals_list)]
 
 get_interval_mean<-function(interval_in){
   data_nona_by_interval$interval_steps_mean[data_nona_by_interval$interval == interval_in]
 }
+data_new[which(na_steps_ndx),]$steps <- data_nona_by_interval[match(data_new[which(na_steps_ndx),]$interval,intervals_list),]$interval_steps_mean
 
-data_new$steps <- ifelse(is.na(data_new$steps),get_interval_mean(data_new$interval),data_new$steps)
+data_new2[na_steps_ndx,]$steps <- data_nona_by_interval[match(data_new2[na_steps_ndx,]$interval,intervals_list),]$interval_steps_mean
+
+#data_new$steps <- ifelse(is.na(data_new$steps),get_interval_mean(data_new$interval),data_new$steps)

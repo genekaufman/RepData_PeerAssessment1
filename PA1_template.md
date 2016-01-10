@@ -19,6 +19,8 @@ inline_hook <- function(x){
         sprintf("%.4f",x)
     )
     paste(res,collapse=", ")
+  } else { # anything non-numeric just passes through
+    x
   }
 }
 knit_hooks$set(inline=inline_hook)
@@ -115,7 +117,7 @@ The interval with the highest average across all days is **835**.
 
 ## Imputing missing values
 
-Make a couple of lists that will come in handy
+A list of NAs will be useful
 
 ```r
 na_steps_ndx <- is.na(data_raw$steps)		# index of NAs
@@ -145,7 +147,7 @@ data_new<-data_raw
 # the interval for a missing step to the intervals_list provides the correct 
 # index to the summary dataframe (data_nona_by_interval), and from there we 
 # return the mean for that interval
-data_new[which(na_steps_ndx),]$steps <- data_nona_by_interval[match(data_new[which(na_steps_ndx),]$interval,intervals_list),]$interval_steps_mean
+data_new[na_steps_ndx,]$steps <- data_nona_by_interval[match(data_new[na_steps_ndx,]$interval,intervals_list),]$interval_steps_mean
 ```
 
 Group and summarize new data by date
@@ -173,9 +175,11 @@ with(data_new_by_day,
 ```r
 daily_new_steps_mean <- mean(data_new_by_day$daily_steps_total)
 daily_new_steps_median <- median(data_new_by_day$daily_steps_total)
+
+mean_new_vs_raw <- identical(daily_new_steps_mean,daily_nona_steps_mean)
 ```
 
-After replacing NAs with the median step per interval, the mean total number of steps taken per day is **10766.1887** (rounded to 4 decimal places), with a median of **10766.1887** steps (rounded to 4 decimal places). There is no difference in the means between the dataset with ignored NAs and the dataset with imputed NAs. Likewise, the difference in medians is very small (**10766.1887** vs **10765** (rounded to 4 decimal places)). Therefore, I believe that we can state that there is no impact when using mean/interval to impute missing data.
+After replacing NAs with the median step per interval, the mean total number of steps taken per day is **10766.1887** (rounded to 4 decimal places), with a median of **10766.1887** steps (rounded to 4 decimal places). There is no difference in the means between the dataset with ignored NAs and the dataset with imputed NAs (The means are displayed here to 4 decimal places, but running identical() on them returns: **TRUE**). Likewise, the difference in medians is very small (**10766.1887** vs **10765** (rounded to 4 decimal places)). Therefore, I believe that we can state that there is no impact when using mean/interval to impute missing data.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
